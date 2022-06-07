@@ -188,6 +188,26 @@ const complexSchemaParsers = {
   [SCHEMA_TYPES.COMPLEX_ALL_OF]: (schema) => {
     // T1 & T2
     const combined = _.map(schema.allOf, complexTypeGetter);
+    let isPropertiesData = false;
+    let isPropertiesDataIndex = -1;
+    if (Array.isArray(schema.allOf) && Array.isArray(combined) && combined.length === 2) {
+      schema.allOf.map((item, index) => {
+        if (item && item.properties && item.properties.data) {
+          isPropertiesData = true;
+          isPropertiesDataIndex = index;
+        }
+      });
+    }
+    if (isPropertiesData) {
+      const filterContent = filterContents(combined, [
+        ...JS_EMPTY_TYPES,
+        ...JS_PRIMITIVE_TYPES,
+        TS_KEYWORDS.ANY,
+      ]);
+      return `Override<${filterContent[0]}, ${filterContent[1]}>`;
+    }
+
+    debugger;
     return checkAndAddNull(
       schema,
       filterContents(combined, [...JS_EMPTY_TYPES, ...JS_PRIMITIVE_TYPES, TS_KEYWORDS.ANY]).join(

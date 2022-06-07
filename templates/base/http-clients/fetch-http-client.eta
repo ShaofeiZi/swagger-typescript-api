@@ -4,6 +4,7 @@ const { apiConfig, generateResponses, config } = it;
 
 export type QueryParamsType = Record<string | number, any>;
 export type ResponseFormat = keyof Omit<Body, "body" | "bodyUsed">;
+type Override<P, S> = Omit<P, keyof S> & S;
 
 export interface FullRequestParams extends Omit<RequestInit, "body"> {
   /** set parameter to `true` for call `securityWorker` for this request */
@@ -68,7 +69,7 @@ export class HttpClient<SecurityDataType = unknown> {
     public setSecurityData = (data: SecurityDataType | null) => {
         this.securityData = data;
     }
-    
+
     private encodeQueryParam(key: string, value: any) {
         const encodedKey = encodeURIComponent(key);
         return `${encodedKey}=${encodeURIComponent(typeof value === "number" ? value : `${value}`)}`;
